@@ -3,6 +3,18 @@
     <head>
         <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
         <title>MusicNet: The Music Database</title>
+        <style>
+            .starRate {position:relative; margin:20px; overflow:hidden; zoom:1;}
+            .starRate ul {width:160px; margin:0; padding:0;}
+            .starRate li {display:inline; list-style:none;}
+            .starRate a, .starRate b {background:url(./star_rate.gif) left top repeat-x;}
+            .starRate a {float:right; margin:0 80px 0 -144px; width:80px; height:16px; background-position:left 16px; color:#000; text-decoration:none;}
+            .starRate a:hover {background-position:left -32px;}
+            .starRate b {position:absolute; z-index:-1; width:80px; height:16px; background-position:left -16px;}
+            .starRate div b {left:0px; bottom:0px; background-position:left top;}
+            .starRate a span {position:absolute; left:-300px;}
+            .starRate a:hover span {left:90px; width:100%;}
+        </style>
     </head>
     <body>
         <div align="right">
@@ -97,6 +109,10 @@
                         <td><input type="text" id="loudness"></td>
                     </tr>
                     <tr>
+                        <td>Duration: </td>
+                        <td><input type="text" id="duration"></td>
+                    </tr>
+                    <tr>
                         <td>Like Terms:</td>
                         <td>TO BE IMPLEMENTED MULTISELECT OF ALL TERMS</td>
                     </tr>
@@ -119,9 +135,102 @@
                 });
                 </script>
         </form>
+        <br/>
 
-        <div id="advertisements" style="float:left;width:25%;">elo</div>
-        <div id="searchresults" style="float:left;width:74%;">hello</div>
+        <div id="advertisements" style="padding-right:2%;float:left;width:20%;">
+            <div id="advertexample" style="border:2px dashed;">
+                <div align="center" style="font-size:150%;">Ad Name</div> 
+                <div style="margin:7px;"> Ad Description lorem ipsum lorem ipsum lorem ipsum </div>
+            </div>
+        </div>
+        <div id="searchresults" style="float:left;width:74%;">
+            <div id="resultexample" style="overflow:hidden;border:2px solid;">
+                <div style="float:left;font-size:400%;padding-right:2%;">1</div>
+                <div style="float:left;">
+                    <span style="font-size:250%;"> Song Name </span>
+                    <span style="color:grey;font-size:150%;">- Artist Name </span>
+                    <br/>
+                    <span style="font-size:150%">Album Name</span> - (Year) - Duration - Loudness
+                 </div>
+                 <img style="float:right;" height="84" width="84" src="./play.png" alt="Play" />
+                 <div style="float:right;width:30%;" class="starRate">
+                    <div>Currently rated: 4 stars<b></b></div>
+                    <ul>
+                        <li><a href="#"><span>Give it 5 stars</span></a></li>
+                        <li><a href="#"><span>Give it 4 stars</span><b></b></a></li>
+                        <li><a href="#"><span>Give it 3 stars</span></a></li>
+                        <li><a href="#"><span>Give it 2 stars</span></a></li>
+                        <li><a href="#"><span>Give it 1 star</span></a></li>
+                    </ul>
+                </div>
+             </div>
+        </div>
+        <script>
+            //TODO: Makes the song for our current user be that rating. or does nothing
+            var rateAjax = function(song_id, rating){
+
+            };
+            // rating is a number, has_rated a boolean, and s_id as integer
+            var createStars = function(rating, has_rated, s_id){
+                var starrate = $("<div>", {style:"float:right;width:30%;", class:"starRate"});
+                var title = $("<div>");
+                if ( has_rated ){
+                    title.text("You Rated The Song: "+rating+" stars");
+                }else{
+                    title.text("Average Rating: "+rating+" stars");
+                }
+                title.append("</br>");
+                var ul = $("<ul>");
+                for( var i = 1; i <= 5; i++ ){
+                    var li = $('<li>');
+                    var a = $('<a>', {href:"#", onClick:"rateAjax("+s_id+", "+i+");"});
+                    if( i === rating ){
+                        a.append("<br/>");
+                    }
+                    var span = $("<span>");
+                    span.text("Give it "+i+" Stars");
+                    a.append(span);
+                    li.append(a);
+                    ul.append(li);
+                }
+                starrate.append(title);
+                starrate.append(ul);
+                return starrate;
+            };
+            //Strings describing what to display in the jQuery tag returned
+            var createSongDiv = function(rank_txt, s_id, s_name, art, alb, year, dur, loud, u_rate, avg_rage){
+                var ret = $("<div>", {style: "overflow:hidden;border:2px solid;"});
+                var rank = $("<div>", {style: "float:left;font-size:400%;padding-right:2%;"});
+                var info = $("<div>", {style: "float:left;"});
+                var song_name = $("<span>", {style:"font-size:250%;"});
+                var art_name = $("<span>", {style:"color:grey;gont-size:150%;"});
+                var alb_name = $("<span>", {style:"font-size:150%;"});
+                var rest = $("<span>");
+                var img = $("<img>", {style:"float:right;", height:84, width:84, src:"./play.png", alr:"Play"});
+                var stars = '';
+                if( u_rate === 0 ){
+                    stars = createStars(avg_rate, false, s_id);
+                }else{
+                    stars = createStars(u_rate, true, s_id);
+                }
+                rank.text(rank_txt);
+                ret.append(rank);
+                song_name.text(s_name);
+                info.append(song_name)
+                art_name.text(art);
+                info.append(art_name);
+                info.append("<br/>");
+                alb_name.text(alb);
+                info.append(alb_name);
+                rest.text(" - ("+year+") - "+dur+" - "+loud);
+                info.append(rest);
+                ret.append(info);
+                ret.append(img);
+                ret.append(stars);
+
+                return ret;
+            };
+        </script>
     </body>
 </html>
 
