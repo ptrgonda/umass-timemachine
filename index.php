@@ -67,7 +67,7 @@
                 <a id="advancedbutton" href="#" >Advanced Search</a>
                 <table id="advanced" >
                     <tr>
-                        <td>Title:</td> 
+                        <td>Title:</td>
                         <td><input type="text" id="title" /></td>
                     </tr>
                     <tr>
@@ -79,12 +79,12 @@
                         <td><input type="text" id="album" /></td>
                     </tr>
                     <tr>
-                        <td>Year:</td> 
+                        <td>Year:</td>
                         <td><input type="text" id="year" /></td>
                     </tr>
                     <tr>
                         <td>Average Rating:</td>
-                        <td> 
+                        <td>
                             <input type="checkbox" id="rating1"/>1
                             <input type="checkbox" id="rating2"/>2
                             <input type="checkbox" id="rating3"/>3
@@ -127,7 +127,7 @@
 
         <div id="advertisements" style="padding-right:2%;float:left;width:20%;">
             <div id="advertexample" style="border:2px dashed;">
-                <div align="center" style="font-size:150%;">Ad Name</div> 
+                <div align="center" style="font-size:150%;">Ad Name</div>
                 <div style="margin:7px;"> Ad Description lorem ipsum lorem ipsum lorem ipsum </div>
             </div>
         </div>
@@ -153,7 +153,13 @@
         </div>
         <script>
             $(function(){
-            <?php echo var isLoggedIn = isset($_COOKIE["username"]); ?>
+            <?php
+            if(isset($_COOKIE["username"])){
+                echo "var isLoggedIn = true;\n";
+            }else{
+                echo "var isLoggedIn = false;\n";
+            }
+            ?>
             // rating is a number, has_rated a boolean, and s_id as integer
             var createStars = function(rating, has_rated, s_id){
                 var ratingcontainer =
