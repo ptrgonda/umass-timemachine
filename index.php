@@ -1,20 +1,8 @@
 <!DOCTYPE html>
 <html lang="en">
     <head>
+        <title>MusicNet: A Social Network for Music Enthusiasts</title>
         <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
-        <title>MusicNet: The Music Database</title>
-        <style>
-            .starRate {position:relative; margin:20px; overflow:hidden; zoom:1;}
-            .starRate ul {width:160px; margin:0; padding:0;}
-            .starRate li {display:inline; list-style:none;}
-            .starRate a, .starRate b {background:url(./star_rate.gif) left top repeat-x;}
-            .starRate a {float:right; margin:0 80px 0 -144px; width:80px; height:16px; background-position:left 16px; color:#000; text-decoration:none;}
-            .starRate a:hover {background-position:left -32px;}
-            .starRate b {position:absolute; z-index:-1; width:80px; height:16px; background-position:left -16px;}
-            .starRate div b {left:0px; bottom:0px; background-position:left top;}
-            .starRate a span {position:absolute; left:-300px;}
-            .starRate a:hover span {left:90px; width:100%;}
-        </style>
     </head>
     <body>
         <div align="right">
@@ -153,52 +141,65 @@
                     <span style="font-size:150%">Album Name</span> - (Year) - Duration - Loudness
                  </div>
                  <img style="float:right;" height="84" width="84" src="./play.png" alt="Play" />
-                 <div style="float:right;width:30%;" class="starRate">
-                    <div>Currently rated: 4 stars<b></b></div>
-                    <ul>
-                        <li><a href="#"><span>Give it 5 stars</span></a></li>
-                        <li><a href="#"><span>Give it 4 stars</span><b></b></a></li>
-                        <li><a href="#"><span>Give it 3 stars</span></a></li>
-                        <li><a href="#"><span>Give it 2 stars</span></a></li>
-                        <li><a href="#"><span>Give it 1 star</span></a></li>
-                    </ul>
+                 <div class="rating-container">
+                    <div class="star"></div>
+                    <div class="star"></div>
+                    <div class="star"></div>
+                    <div class="star"></div>
+                    <div class="star"></div>
                 </div>
-             </div>
+
+          </div>
         </div>
         <script>
-            //TODO: Makes the song for our current user be that rating. or does nothing
-            var rateAjax = function(song_id, rating){
-
-            };
+            $(function(){
+            <?php echo var isLoggedIn = isset($_COOKIE["username"]); ?>
             // rating is a number, has_rated a boolean, and s_id as integer
             var createStars = function(rating, has_rated, s_id){
-                var starrate = $("<div>", {style:"float:right;width:30%;", class:"starRate"});
-                var title = $("<div>");
+                var ratingcontainer =
+                    $("<div>", {style:"float:right;width:30%;", id:s_id+"-rating-container"});
+
+                var title = $("<div>", {id:s_id+"-rating-title"});
                 if ( has_rated ){
                     title.text("You Rated The Song: "+rating+" stars");
                 }else{
                     title.text("Average Rating: "+rating+" stars");
                 }
                 title.append("</br>");
-                var ul = $("<ul>");
+                var ul = $("<div>");
                 for( var i = 1; i <= 5; i++ ){
-                    var li = $('<li>');
-                    var a = $('<a>', {href:"#", onClick:"rateAjax("+s_id+", "+i+");"});
+                    var star = $('<div>', {class:"star"
+                        , style:"display:inline-block;"
+                            +"width:10px;"
+                            +"height:10px;"
+                            +"background-color:#CC0;"
+                            +"margin:3px;"
+                        , href:"#"});
+                    ul.append(star);
                     if( i === rating ){
-                        a.append("<br/>");
+                        star.prevAll('.star').addBack().css('background-color', '#C00');
                     }
-                    var span = $("<span>");
-                    span.text("Give it "+i+" Stars");
-                    a.append(span);
-                    li.append(a);
-                    ul.append(li);
+                    star.click(function(){
+                        $(this).siblings().css("background-color", '#CC0');
+                        $(this).prevAll('.star').addBack().css('background-color', '#C00');
+                        $("#"+s_id+"-rating-title").text("You Rated the Song: "+($(this).index()+1)+" stars");
+                        rating = ($(this).index()+1);
+                    });
+                    star.hover(function(){
+                        $(this).siblings().addBack().css("background-color", "#CC0");
+                        $(this).prevAll('.star').addBack().css('background-color', '#C80');
+                    }, function(){
+                        $(this).siblings().addBack().css("background-color", "#CC0");
+                        $("#"+s_id+"-rating-container div div:eq("+(rating-1)+")")
+                            .prevAll('.star').addBack().css('background-color', '#C00');
+                    })
                 }
-                starrate.append(title);
-                starrate.append(ul);
-                return starrate;
+                ratingcontainer.append(title);
+                ratingcontainer.append(ul);
+                return ratingcontainer;
             };
             //Strings describing what to display in the jQuery tag returned
-            var createSongDiv = function(rank_txt, s_id, s_name, art, alb, year, dur, loud, u_rate, avg_rage){
+            var createSongDiv = function(rank_txt, s_id, s_name, art, alb, year, dur, loud, u_rate, avg_rate){
                 var ret = $("<div>", {style: "overflow:hidden;border:2px solid;"});
                 var rank = $("<div>", {style: "float:left;font-size:400%;padding-right:2%;"});
                 var info = $("<div>", {style: "float:left;"});
@@ -217,7 +218,7 @@
                 ret.append(rank);
                 song_name.text(s_name);
                 info.append(song_name)
-                art_name.text(art);
+                art_name.text(" - "+art);
                 info.append(art_name);
                 info.append("<br/>");
                 alb_name.text(alb);
@@ -230,6 +231,7 @@
 
                 return ret;
             };
+        });
         </script>
     </body>
 </html>
