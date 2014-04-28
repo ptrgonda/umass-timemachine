@@ -27,7 +27,7 @@
             $query = 'SELECT  s.s_id, s.title, art.art_name, alb.alb_name
                 , s.year, s.duration, s.loudness, 0
                 , s.raw_ratings, s.numb_users_rated
-                from Songs s
+                from Songz2 s
                 join Artists art on(s.art_id = art.art_id)
                 join Albums alb on (s.alb_id = alb.alb_id)';
             if( isset($_POST['user_id']) ){
@@ -67,14 +67,14 @@
             if(count($group) > 0){
                 $query = 'SELECT count(s.s_id), s.title, art.art_name, alb.alb_name
                     , s.year, null, null, 0, sum(s.raw_ratings), sum(s.numb_users_rated)
-                    from Songs s
+                    from Songz2 s
                     join Artists art on(s.art_id = art.art_id)
                     join Albums alb on (s.alb_id = alb.alb_id)';
             }else{
                 $query = 'SELECT  s.s_id, s.title, art.art_name, alb.alb_name
                     , s.year, s.duration, s.loudness, 0
                     , s.raw_ratings, s.numb_users_rated
-                    from Songs s
+                    from Songz2 s
                     join Artists art on(s.art_id = art.art_id)
                     join Albums alb on (s.alb_id = alb.alb_id)';
             }
@@ -121,21 +121,26 @@
             if ( isset($_POST["dur1"]) and isset($_POST["dur2"] ) ){
                 array_push($part, 's.duration between ' . $_POST["dur1"] . ' and ' . $_POST["dur2"]);
             }
-            if( isset($_POST["rating"] ) ) {
-                array_push($part, 'ceil(s.raw_ratings/s.numb_users_rated) in ');
-                #TODO FINISH THIS ONE
+            $like = array();
+            for($i = 1; $i <= 5; $i++){
+                if(isset($_POST['rating' . $i])){
+                    array_push($like, $i);
+                }
+            }
+            $inclause  = '(' . join(',', $like) . ')';
+            if( count($inclause) > 0) {
+                array_push($part, 'ceil(ifnull(s.raw_ratings/s.numb_users_rated, 0))-1 in ' . $inclause);
             }
             if( isset($_POST["userrates"] )){
                 array_push($part, 's.numb_users_rated >= ' . $_POST['userrates']);
-                #UNTESTED
             }
 
             if( count($part) > 0 ){
-                $query = $query . ' where ' . join('\n and ', $part);
+                $query = $query . ' where ' . join(' and ', $part);
             }
 
             if( count($group) > 0 ){
-                $query = $query . ' group by ' . join('\n, ', $group);
+                $query = $query . ' group by ' . join(', ', $group);
             }
             if( isset($_POST["songcount"] ) ){
                 $query = $query . ' having count(s_id) > ' . $_POST["songcount"];
@@ -161,7 +166,7 @@
                 array_push($order, 's.year' . $end);
             }
             if( isset($_POST["sortbyrating"]) ){
-                array_push($order, 'ceil(s.raw_ratings/s.numb_users_rated)' . $end);
+                array_push($order, 'ifnull(s.raw_ratings/s.numb_users_rated, 0)' . $end);
             }
             if( isset($_POST["sortbyloud"] )){
                 array_push($order, 's.loudness' . $end);
@@ -170,12 +175,12 @@
                 array_push($order, 's.duration' . $end);
             }
             if( count($order) > 0 ){
-                $query = $query . ' order by ' . join('\n, ', $order);
+                $query = $query . ' order by ' . join(', ', $order);
             }
 
 
 
-            echo $query;
+            #echo $query;
             $result = mysql_query($query);
             if (!$result){
                 echo $query;

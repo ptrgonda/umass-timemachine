@@ -106,7 +106,7 @@
 
         <form action="" >
             <center>
-                <input type="text" size="100"/><br/>
+                <input id="searchbar" type="text" size="100"/><br/>
                 <div >
                 <a id="advancedbutton" href="#" >Advanced Search</a>
                 <table id="advanced" >
@@ -193,23 +193,6 @@
             </div>
         </div>
         <div id="searchresults" style="float:left;width:74%;">
-            <!-- <div id="resultexample" style="overflow:hidden;border:2px solid;">
-                <div style="float:left;font-size:400%;padding-right:2%;">1</div>
-                <div style="float:left;">
-                    <span style="font-size:250%;"> Song Name </span>
-                    <span style="color:grey;font-size:150%;">- Artist Name </span>
-                    <br/>
-                    <span style="font-size:150%">Album Name</span> - (Year) - Duration - Loudness
-                 </div>
-                 <img style="float:right;" height="84" width="84" src="./play.png" alt="Play" />
-                 <div class="rating-container">
-                    <div class="star"></div>
-                    <div class="star"></div>
-                    <div class="star"></div>
-                    <div class="star"></div>
-                    <div class="star"></div>
-                </div>
-          </div> -->
         </div>
         <script>
             $(function(){
@@ -229,7 +212,11 @@
                 if ( has_rated ){
                     title.text("You Rated The Song: "+rating+" stars");
                 }else{
-                    title.text("Average Rating: "+rating+" stars");
+                    if(isNaN(rating)){
+                        title.text("Average Rating: Not Available");
+                    }else{
+                        title.text("Average Rating: "+rating.toFixed(2)+" stars");
+                    }
                 }
                 title.append("</br>");
                 var ul = $("<div>");
@@ -264,19 +251,20 @@
                 ratingcontainer.append(ul);
                 return ratingcontainer;
             };
+
             //Strings describing what to display in the jQuery tag returned
             var createSongDiv = function(rank_txt, s_id, s_name, art, alb, year, dur, loud, u_rate, avg_rate){
-                var ret = $("<div>", {style: "overflow:hidden;border:2px solid;"});
+                var ret = $("<div>", {style: "overflow:hidden;padding-bottom:10px;border:2px solid;"});
                 var rank = $("<div>", {style: "float:left;font-size:400%;padding-right:2%;"});
                 var info = $("<div>", {style: "float:left;"});
                 var song_name = $("<span>", {style:"font-size:250%;"});
-                var art_name = $("<span>", {style:"color:grey;gont-size:150%;"});
+                var art_name = $("<span>", {style:"color:grey;font-size:150%;"});
                 var alb_name = $("<span>", {style:"font-size:150%;"});
                 var rest = $("<span>");
                 var play = $('<div>', {style:"float:right;padding:5px;",class:"play_border"});
                 play.append($('<div>', {class:"play_button"}));
                 var stars = '';
-                if( u_rate === 0 ){
+                if( u_rate == 0 ){
                     stars = createStars(avg_rate, false, s_id);
                 }else{
                     stars = createStars(u_rate, true, s_id);
@@ -298,17 +286,32 @@
 
                 return ret;
             };
-            $("#searchresults").append(createSongDiv(2, 123,"HI", "HEYYY", "LOLOL", 1992, 123, "LOL", 3, 3));
             $("#submit").click(function(){
                 var data = {};
-                $("form input").each(function(){
-                    if($(this).val() != null && $(this).val() != ""){
-                        if($(this).val() === "on" && $(this).is(':checked') && this.type==='checkbox'){
-                            data[$(this).attr('id')] = $(this).val();
+                if($("#searchbar").val() !== ''){
+                    data["simple"] = 1;
+                }else{
+                    $("#advanced input").each(function(){
+                        if($(this).val() != null && $(this).val() != ""){
+                            if($(this).val() === "on" && $(this).is(':checked') && this.type==='checkbox'){
+                                data[$(this).attr('id')] = $(this).val();
+                            }else if( this.type !== 'checkbox' && this.type !== 'submit'){
+                                data[$(this).attr('id')] = $(this).val();
+                            }
                         }
+                    });
+                }
+                data['search'] = 1;
+                $.post('/php-wrapper/ggr/server.php', data, function(suc){
+                    var i = 1;
+                    $("#searchresults").html("");
+                    for (var key in suc){
+                        $('#searchresults').append(createSongDiv(i++, suc[key][0], suc[key][1]
+                            , suc[key][2], suc[key][3], suc[key][4]
+                            , suc[key][5], suc[key][6], suc[key][7]
+                            , parseFloat(suc[key][8]/suc[key][9])));
                     }
                 });
-                console.log(data);
             });
 
         });
