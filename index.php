@@ -289,7 +289,7 @@
             $("#submit").click(function(){
                 var data = {};
                 if($("#searchbar").val() !== ''){
-                    data["simple"] = 1;
+                    data["simple"] = $("#searchbar").val();
                 }else{
                     $("#advanced input").each(function(){
                         if($(this).val() != null && $(this).val() != ""){
