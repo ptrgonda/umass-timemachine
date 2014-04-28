@@ -3,6 +3,50 @@
     <head>
         <title>MusicNet: A Social Network for Music Enthusiasts</title>
         <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+        <style>
+.play_border {
+    margin:5px;
+    border: 2px solid rgba(0,0,0,0.7);
+    -webkit-border-radius: 100%;
+    -moz-border-radius: 100%;
+    border-radius: 100%;
+    width: 40px;
+    height: 40px;
+    -webkit-box-shadow: 0px 0px 5px 2px rgba(0, 0, 0, 0.5);
+    -moz-box-shadow: 0px 0px 5px 2px rgba(0, 0, 0, 0.5);
+    box-shadow: 0px 0px 5px 2px rgba(0, 0, 0, 0.5);
+    -webkit-transition: all 0.5s ease;
+    -moz-transition: all 0.5s ease;
+    -o-transition: all 0.5s ease;
+    -ms-transition: all 0.5s ease;
+    transition: all 0.5s ease;
+    cursor: pointer;
+}
+.play_border:hover{
+    border-color: transparent;
+    -webkit-box-shadow: 0px 0px 5px 2px rgba(0, 0, 0, 0.2);
+    -moz-box-shadow: 0px 0px 5px 2px rgba(0, 0, 0, 0.2);
+    box-shadow: 0px 0px 5px 2px rgba(0, 0, 0, 0.2);
+}
+.play_border:hover .play_button{
+    border-left: 10px solid rgba(0,0,0,0.5);
+}
+.play_border:active,.play_border:focus{
+    -webkit-box-shadow: 0px 0px 5px 2px rgba(0, 0, 0, 0.2);
+    -moz-box-shadow: 0px 0px 5.play_button:hoverpx 2px rgba(0, 0, 0, 0.2);
+    box-shadow: 0px 0px 5px 2px rgba(0, 0, 0, 0.2);
+}
+.play_button {
+    position:relative;
+    top: 10px;
+    left: 40%;
+    width: 0;
+    height: 0;
+    border-top: 10px solid transparent;
+    border-bottom: 10px solid transparent;
+    border-left: 10px solid rgba(0,0,0,0.8);
+}
+        </style>
     </head>
     <body>
         <div align="right">
@@ -63,24 +107,38 @@
         <form action="" >
             <center>
                 <input type="text" size="100"/><br/>
-                <div style="width:25%" >
+                <div >
                 <a id="advancedbutton" href="#" >Advanced Search</a>
                 <table id="advanced" >
                     <tr>
+                        <td></td>
+                        <td></td>
+                        <td align="right">Reverse! Sort Desc <input type="checkbox" id="sortdesc" /> </td>
+                    </tr>
+                    <tr>
                         <td>Title:</td>
-                        <td><input type="text" id="title" /></td>
+                        <td><input type="text" id="title"  size=25 /></td>
+                        <td align="right">Sort by Title <input type="checkbox" id="sortbytitle" /></td>
+                        <td align="right">Group by Title <input type="checkbox" id="groupbytitle" /></td>
                     </tr>
                     <tr>
                         <td>Artist:</td>
-                        <td><input type="text" id="artist" /></td>
+                        <td><input type="text" id="artist" size=25  /></td>
+                        <td align="right">Sort by Artist <input type="checkbox" id="sortbyartist" /></td>
+                        <td align="right">Group by Artist <input type="checkbox" id="groupbyartist" /></td>
                     </tr>
                     <tr>
                         <td>Album:</td>
-                        <td><input type="text" id="album" /></td>
+                        <td><input type="text" id="album" size=25 /></td>
+                        <td align="right">Sort by Album<input type="checkbox" id="sortbyalbum" /></td>
+                        <td align="right">Group by Album <input type="checkbox" id="groupbyalbum" /></td>
                     </tr>
                     <tr>
                         <td>Year:</td>
-                        <td><input type="text" id="year" /></td>
+                        <td> between <input type="text" id="year1" size="4" />
+                        and <input type="text" id="year2" size="4" /></td>
+                        <td align="right">Sort by Year <input type="checkbox" id="sortbyyear" /></td>
+                        <td align="right">Group by Year <input type="checkbox" id="groupbyyear" /></td>
                     </tr>
                     <tr>
                         <td>Average Rating:</td>
@@ -91,23 +149,26 @@
                             <input type="checkbox" id="rating4"/>4
                             <input type="checkbox" id="rating5"/>5
                         </td>
+                        <td align="right">Sort by Rating<input type="checkbox" id="sortbyrating" /></td>
+                        <td> <input type="text" id="userrates" size=6 />+ User Ratings</td>
                     </tr>
                     <tr>
                         <td>Loudness: </td>
-                        <td><input type="text" id="loudness"></td>
+                        <td> between <input type="text" id="loud1" size=4 /> and
+                        <input type="text" id="loud2" size=4 /></td>
+                        <td align="right">Sort by Loudness <input type="checkbox" id="sortbyloud" /></td>
+                        <td align="right"><input type="text" id="songcount" size=4 />+ Grouped Songs</td>
                     </tr>
                     <tr>
                         <td>Duration: </td>
-                        <td><input type="text" id="duration"></td>
-                    </tr>
-                    <tr>
-                        <td>Like Terms:</td>
-                        <td>TO BE IMPLEMENTED MULTISELECT OF ALL TERMS</td>
+                        <td> between <input type="text" id="dur1" size=4 /> and
+                        <input type="text" id="dur2" size=4 /></td>
+                        <td align="right">Sort by Duration <input type="checkbox" id="sortbydur" /></td>
                     </tr>
                 </table>
                 </div>
                 <br/>
-                <input type="submit" value="Search">
+                <input type="submit" value="Search" id="submit" />
             </center>
                 <script>
                 $("#advanced").hide();
@@ -132,7 +193,7 @@
             </div>
         </div>
         <div id="searchresults" style="float:left;width:74%;">
-            <div id="resultexample" style="overflow:hidden;border:2px solid;">
+            <!-- <div id="resultexample" style="overflow:hidden;border:2px solid;">
                 <div style="float:left;font-size:400%;padding-right:2%;">1</div>
                 <div style="float:left;">
                     <span style="font-size:250%;"> Song Name </span>
@@ -148,8 +209,7 @@
                     <div class="star"></div>
                     <div class="star"></div>
                 </div>
-
-          </div>
+          </div> -->
         </div>
         <script>
             $(function(){
@@ -163,7 +223,7 @@
             // rating is a number, has_rated a boolean, and s_id as integer
             var createStars = function(rating, has_rated, s_id){
                 var ratingcontainer =
-                    $("<div>", {style:"float:right;width:30%;", id:s_id+"-rating-container"});
+                    $("<div>", {style:"float:right;width:30%;padding:17px;", id:s_id+"-rating-container"});
 
                 var title = $("<div>", {id:s_id+"-rating-title"});
                 if ( has_rated ){
@@ -213,7 +273,8 @@
                 var art_name = $("<span>", {style:"color:grey;gont-size:150%;"});
                 var alb_name = $("<span>", {style:"font-size:150%;"});
                 var rest = $("<span>");
-                var img = $("<img>", {style:"float:right;", height:84, width:84, src:"./play.png", alr:"Play"});
+                var play = $('<div>', {style:"float:right;padding:5px;",class:"play_border"});
+                play.append($('<div>', {class:"play_button"}));
                 var stars = '';
                 if( u_rate === 0 ){
                     stars = createStars(avg_rate, false, s_id);
@@ -232,11 +293,24 @@
                 rest.text(" - ("+year+") - "+dur+" - "+loud);
                 info.append(rest);
                 ret.append(info);
-                ret.append(img);
+                ret.append(play);
                 ret.append(stars);
 
                 return ret;
             };
+            $("#searchresults").append(createSongDiv(2, 123,"HI", "HEYYY", "LOLOL", 1992, 123, "LOL", 3, 3));
+            $("#submit").click(function(){
+                var data = {};
+                $("form input").each(function(){
+                    if($(this).val() != null && $(this).val() != ""){
+                        if($(this).val() === "on" && $(this).is(':checked') && this.type==='checkbox'){
+                            data[$(this).attr('id')] = $(this).val();
+                        }
+                    }
+                });
+                console.log(data);
+            });
+
         });
         </script>
     </body>
